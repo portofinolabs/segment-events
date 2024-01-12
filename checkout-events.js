@@ -1,11 +1,31 @@
-/**
- * @param {string} apiKey - The API key for Segment tracking.
- */
-(function (apiKey) {
-  /**
-   * Initializes Segment tracking for click events.
-   */
-  function initSegmentTracking() {}
+console.log("Checkout events loaded");
 
-  initSegmentTracking();
-})();
+const formatProductData = (products) =>
+  products.map((product) => ({
+    brand: product.variant.product.vendor,
+    ...product,
+  }));
+
+const formatCheckoutData = (checkout) => {
+  const {
+    lineItems,
+    currencyCode: currency,
+    discountApplications: coupon,
+    token: checkout_id,
+  } = checkout;
+
+  return {
+    affiliation: "Website",
+    source: "becausemarket.com",
+    coupon,
+    discount: coupon,
+    currency,
+    checkout_id,
+    products: formatProductData(lineItems),
+  };
+};
+
+function checkoutStartedEvent(event) {
+  const { checkout } = event.data;
+  window.segment.track("Checkout Started", formatCheckoutData(checkout));
+}
