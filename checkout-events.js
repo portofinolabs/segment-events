@@ -1,4 +1,4 @@
-console.log("Checkout events loaded");
+const segment = window.segment;
 
 const formatProductData = (products) =>
   products.map((product) => ({
@@ -27,5 +27,10 @@ const formatCheckoutData = (checkout) => {
 
 function checkoutStartedEvent(event) {
   const { checkout } = event.data;
-  window.segment.track("Checkout Started", formatCheckoutData(checkout));
+  segment.track("Checkout Started", formatCheckoutData(checkout));
+}
+
+function checkoutCompletedEvent(event) {
+  const { checkout } = event.data;
+  segment.track("Checkout Completed", formatCheckoutData(checkout));
 }
