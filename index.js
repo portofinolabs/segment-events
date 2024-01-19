@@ -1,4 +1,3 @@
-// import initSegment from "./segment.js";
 import { AnalyticsBrowser, Context } from "@segment/analytics-next";
 import {
   getCustomerInfo,
@@ -7,11 +6,12 @@ import {
   formatEventName,
 } from "./utils.js";
 
-const segment = AnalyticsBrowser.load({
+const segment = (window.segment = AnalyticsBrowser.load({
   writeKey: "bevOsoWqV9duPDtFxcCpLG7DJQbKdbLM",
-});
+}));
 
-(function () {
+console.log(segment);
+function initialize() {
   const analytics = window.analytics;
   const browser = window.browser;
 
@@ -74,4 +74,12 @@ const segment = AnalyticsBrowser.load({
 
     segment.page(formatEventName(event.name), eventData);
   });
-})();
+}
+
+if (document.readyState === "loading") {
+  // If document is still loading
+  document.addEventListener("DOMContentLoaded", initialize); // Wait for it to finish loading before running initialize
+} else {
+  // Otherwise, if document has already loaded
+  initialize(); // Run initialize immediately
+}
