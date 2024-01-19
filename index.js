@@ -1,13 +1,16 @@
-import initSegment from "./segment.js";
+// import initSegment from "./segment.js";
+import { AnalyticsBrowser, Context } from "@segment/analytics-next";
 import { getCustomerInfo, formatCheckoutData } from "./utils.js";
+
+const segment = AnalyticsBrowser.load({
+  writeKey: "bevOsoWqV9duPDtFxcCpLG7DJQbKdbLM",
+});
 
 /**
  * Self-invoking function to initialize Segment tracking and intercept navigation changes.
  * @param {Window} global - The global window object.
  */
 function initialize() {
-  initSegment();
-  const segment = window.segment;
   const analytics = window.analytics;
   const browser = window.browser;
 
@@ -36,14 +39,27 @@ function initialize() {
   });
 
   analytics.subscribe("page_viewed", async (event) => {
-    console.log(event);
-    const { event_name, ...restEvents } = event;
+    let pageData;
+    const { navigator, document } = event;
+
+    if (document && navigator) {
+      pageData = {
+        title: document.title,
+        path: document.location.pathname,
+        referrer: document.referrer,
+        search: document.location.search,
+        url: document.location.href,
+        keywords: [],
+        userAgent: navigator.userAgent,
+        userAgentData: [],
+      };
+    }
     const eventData = {
-      ...restEvents,
       ...(await getCustomerInfo()),
+      ...pageData,
     };
 
-    if (segment?.page) segment.page("Page Viewed", eventData);
+    segment.page("Page Viewed", eventData);
   });
 }
 
