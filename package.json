@@ -1,22 +1,17 @@
 {
   "name": "segment-events",
-  "version": "1.0.0",
+  "version": "0.1",
   "description": "",
-  "source": "index.js",
-  "main": "dist/main.js",
-  "module": "dist/module.js",
+  "main": "index.js",
   "scripts": {
-    "watch": "parcel watch",
-    "build": "parcel build"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@segment/analytics-next": "^1.63.0"
-  },
-  "devDependencies": {
-    "parcel": "^2.11.0",
-    "process": "^0.11.10"
-  }
+  "keywords": [
+    "segment",
+    "event",
+    "analytics"
+  ],
+  "author": "portofinolabs",
+  "license": "MIT",
+  "devDependencies": {}
 }
