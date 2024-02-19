@@ -10,7 +10,6 @@
   var i = "segment", analytics = window[i] = window[i] || []; if (!analytics.initialize) if (analytics.invoked) window.console && console.error && console.error("Segment snippet included twice."); else {
     analytics.invoked = !0; analytics.methods = ["trackSubmit", "trackClick", "trackLink", "trackForm", "pageview", "identify", "reset", "group", "track", "ready", "alias", "debug", "page", "screen", "once", "off", "on", "addSourceMiddleware", "addIntegrationMiddleware", "setAnonymousId", "addDestinationMiddleware", "register"]; analytics.factory = function (e) { return function () { if (window[i].initialized) return window[i][e].apply(window[i], arguments); var n = Array.prototype.slice.call(arguments); if (["track", "screen", "alias", "group", "page", "identify"].indexOf(e) > -1) { var c = document.querySelector("link[rel='canonical']"); n.push({ __t: "bpc", c: c && c.getAttribute("href") || void 0, p: location.pathname, u: location.href, s: location.search, t: document.title, r: document.referrer }) } n.unshift(e); analytics.push(n); return analytics } }; for (var n = 0; n < analytics.methods.length; n++) { var key = analytics.methods[n]; analytics[key] = analytics.factory(key) } analytics.load = function (key, n) { var t = document.createElement("script"); t.type = "text/javascript"; t.async = !0; t.setAttribute("data-global-segment-analytics-key", i); t.src = "https://cdn.segment.com/analytics.js/v1/" + key + "/analytics.min.js"; var r = document.getElementsByTagName("script")[0]; r.parentNode.insertBefore(t, r); analytics._loadOptions = n }; analytics._writeKey = "bevOsoWqV9duPDtFxcCpLG7DJQbKdbLM";; analytics.SNIPPET_VERSION = "5.2.0";
     analytics.load("bevOsoWqV9duPDtFxcCpLG7DJQbKdbLM");
-    analytics.page();
   }
 }();
 
@@ -29,24 +28,25 @@ const formatEventName = (name) => {
     .join(" ");
 };
 
-const formatProductData = (product) => ({
-  brand: product.variant.product.vendor,
-  category: product.variant.product.type,
-  coupon: product.discountAllocations,
-  image_url: product.variant.image.src,
-  name: product.variant.product.title,
-  price: product.variant.price.amount,
-  product_id: product.variant.product.id,
-  quantity: product.quantity,
-  sku: product.variant.sku,
-  subscription: null,
-  variant: product.variant.title,
-  url: `${window.location.hostname}${product.variant.product.url}`,
-  value: (product.variant.price.amount * product.quantity).toFixed(2),
-})
+const formatCheckoutProductData = (products) =>
+  products.map((product) => ({
+    brand: product.variant.product.vendor,
+    category: product.variant.product.type,
+    coupon: product.discountAllocations,
+    image_url: product.variant.image.src,
+    name: product.variant.product.title,
+    price: product.variant.price.amount,
+    product_id: product.variant.product.id,
+    quantity: product.quantity,
+    sku: product.variant.sku,
+    subscription: null,
+    variant: product.variant.title,
+    url: `${window.location.hostname}${product.variant.product.url}`,
+    value: (product.variant.price.amount * product.quantity).toFixed(2),
+  }));
 
 
-const formatProductsData = (products) =>
+const formatThemeProductsData = (products) =>
   products.map((product) => ({
     brand: product.vendor,
     category: product.product_type,
@@ -65,22 +65,26 @@ const formatProductsData = (products) =>
   }));
 
 
-// const formatProductData2 = (product) => ({
-//   brand: product.vendor,
-//   category: product.product_type,
-//   coupon: product.discounts,
-//   image_url: product.image.substring(2),
-//   name: product.product_title,
-//   position: null,
-//   price: formatProductPrice(product.line_price),
-//   product_id: product.id,
-//   quantity: product.quantity,
-//   sku: product.sku,
-//   subscription: !!product.selling_plan_allocation,
-//   variant: product.variant_title,
-//   variant_id: product.variant_id,
-//   url: `${window.location.hostname}${product.url}`,
-// });
+const formatThemeProductData = (product) => {
+  console.log("product", product);
+
+  return {
+    brand: product.vendor,
+    category: product.product_type,
+    coupon: product.discounts,
+    image_url: product.featured_image.substring(2),
+    name: product.product_title,
+    position: null,
+    price: formatProductPrice(product.line_price),
+    product_id: product.id,
+    quantity: product.quantity,
+    sku: product.sku,
+    subscription: !!product.selling_plan_allocation,
+    variant: product.variant_title,
+    variant_id: product.variant_id,
+    url: `${window.location.hostname}${product.url}`,
+  }
+}
 
 const formatCheckoutData = (checkout) => {
   const {
@@ -97,15 +101,14 @@ const formatCheckoutData = (checkout) => {
     discount: coupon,
     currency,
     checkout_id,
-    products: formatProductsData(lineItems),
+    products: formatCheckoutProductData(lineItems),
   };
 };
 
 
 const getCustomerInfo = async () => {
-  const segment = await getSegment()
-  const customer = segment.user().traits()
-  console.log(segment.user().id())
+  const traitKey = 'ajs_user_traits'
+  const customer = localStorage.getItem(traitKey)
 
   return {
     email: customer?.email,
@@ -160,16 +163,16 @@ const getContext = () => ({
 
 const pageViewedEvent = async () => {
   const segment = await getSegment()
+
   const { customerId, subscriptionId } = getCustomerPortalInfo()
-  console.log("customerId", customerId);
-  console.log("subscriptionId", subscriptionId);
+
 
   const pageData = {
     ...(await getCustomerInfo()),
     keywords: [],
     userAgent: navigator.userAgent,
     userAgentData: navigator.userAgentData.brands.map(({ brand }) => brand),
-    user_id: customerId || segment.user().id(),
+    user_id: customerId || segment?.user().id(),
     anonymous_id: segment.user().anonymousId(),
   };
   segment.page("Page Viewed", pageData);
@@ -184,7 +187,7 @@ const cartViewedEvent = async (cart) => {
   try {
     const eventData = {
       cart_id: null,
-      products: formatProductsData(cart?.items),
+      products: formatThemeProductsData(cart?.items),
       user_id: customerId || segment.user().id(),
       anonymous_id: segment.user().anonymousId(),
     };
@@ -197,7 +200,7 @@ const cartViewedEvent = async (cart) => {
 
 
 const productViewedEvent = async (product) => {
-  const productData = formatProductData(product);
+  const productData = formatThemeProductData(product);
 
   try {
     const eventData = {
@@ -257,7 +260,7 @@ const productAddedEvent = async (data) => {
 
 const productRemovedEvent = async (product) => {
   const { customerId } = getCustomerPortalInfo()
-  const segment = getSegment()
+  const segment = await getSegment()
 
   try {
     const eventData = {
@@ -289,7 +292,7 @@ const productRemovedEvent = async (product) => {
   }
 };
 
-analytics.subscribe("checkout_started", (event) => {
+window.shopevents && analytics.subscribe("checkout_started", (event) => {
   segment.track(
     formatEventName(event.name),
     formatCheckoutData(event.data.checkout)
@@ -297,7 +300,7 @@ analytics.subscribe("checkout_started", (event) => {
 });
 
 
-analytics.subscribe("checkout_completed", async (event) => {
+window.shopevents && analytics.subscribe("checkout_completed", async (event) => {
   const segment = await getSegment()
   const eventData = {
     affiliation: "Website",
@@ -305,7 +308,7 @@ analytics.subscribe("checkout_completed", async (event) => {
     coupon: event.data.checkout.discountApplications,
     currency: event.data.checkout.currencyCode,
     discount: event.data.checkout.discountApplications,
-    products: formatProductsData(event.data.checkout.lineItems),
+    products: formatCheckoutData(event.data.checkout.lineItems),
     brand: event.data.checkout.lineItems[0].variant.product.vendor,
     category: event.data.checkout.lineItems[0].variant.product.type,
     image_url: event.data.checkout.lineItems[0].variant.image.src,
@@ -342,7 +345,7 @@ analytics.subscribe("checkout_completed", async (event) => {
 
 
 const productAddedToNextBoxEvent = async (product) => {
-  const productData = formatProductData(product);
+  const productData = formatThemeProductData(product);
   try {
     const eventData = {
       ...productData,
@@ -461,7 +464,6 @@ const UTM_QUERY_PARAMS = [
 function extractUTMParams() {
   const query = new URLSearchParams(location.search);
   const utmSource = query.get(UTM_SOURCE_QUERY);
-  console.log(utmSource);
 
   if (!utmSource) {
     return undefined;
@@ -534,8 +536,8 @@ function removeUMTParams() {
 function getCustomerPortalInfo() {
   // Retrieve the URL from sessionStorage
   let storedUrl = JSON.parse(sessionStorage.getItem('_attn_'));
-  let customerId = "";
-  let subscriptionId = "";
+  let customerId = null
+  let subscriptionId = null
 
   // Check if the URL is not null or undefined
   if (storedUrl && storedUrl['pd']) {
