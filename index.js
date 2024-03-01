@@ -173,7 +173,7 @@ const pageViewedEvent = async () => {
     userAgent: navigator.userAgent,
     userAgentData: navigator.userAgentData.brands.map(({ brand }) => brand),
     user_id: customerId || segment?.user().id(),
-    anonymous_id: segment.user().anonymousId(),
+    anonymous_id: window.segment.user().anonymousId(),
   };
   segment.page("Page Viewed", pageData);
 }
@@ -189,7 +189,7 @@ const cartViewedEvent = async (cart) => {
       cart_id: null,
       products: formatThemeProductsData(cart?.items),
       user_id: customerId || segment.user().id(),
-      anonymous_id: segment.user().anonymousId(),
+      anonymous_id: window.segment.user().anonymousId(),
     };
 
     segment.track("Cart Viewed", eventData);
@@ -248,7 +248,7 @@ const productAddedEvent = async (data) => {
       wishlist_id: null,
       wishlist_name: null,
       user_id: customerId || segment.user().id(),
-      anonymous_id: segment.user().anonymousId(),
+      anonymous_id: window.segment.user().anonymousId(),
     };
 
     segment.identify()
@@ -281,7 +281,7 @@ const productRemovedEvent = async (product) => {
       url: window.location.href,
       value: formatProductPrice(product.final_line_price),
       user_id: customerId || segment.user().id(),
-      anonymous_id: segment.user().anonymousId(),
+      anonymous_id: window.segment.user().anonymousId(),
     };
 
     segment.track("Product Removed From Cart", eventData, {
