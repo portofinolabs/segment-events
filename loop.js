@@ -18,7 +18,6 @@ let eventData = {
         const drawerContent = document.querySelector('.loop-drawer-content');
 
         if (drawerContent) {
-            console.log('draweTytpe', drawerType);
             switch (drawerType) {
                 case RESCHEDULE_ORDER:
                     console.log('inside reschedule order');
@@ -122,13 +121,11 @@ let eventData = {
 
     const initDrawerButtons = () => {
         const footerBtns = document.querySelectorAll('.loop-drawer-footer button');
-        console.log(drawerType)
 
         if (footerBtns) {
             const confirmBtn = footerBtns[0];
             const closeBtn = footerBtns[1];
             if (confirmBtn) {
-                console.log('confirmBtn', confirmBtn);
                 confirmBtn.addEventListener('click', drawerConfirmClickEvent);
             }
 
@@ -150,7 +147,6 @@ let eventData = {
             const drawerIsOpen = !!document.querySelector('.loop-drawer-content');
 
             if (modalIsOpen) {
-                console.log(e.target.textContent);
 
                 switch (e.target.id) {
                     case 'loop-order-card-order-now-btn':
