@@ -66,7 +66,6 @@ const formatThemeProductsData = (products) =>
 
 
 const formatThemeProductData = (product) => {
-  console.log("product", product);
 
   return {
     brand: product.vendor,
