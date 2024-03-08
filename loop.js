@@ -41,8 +41,12 @@ const initModalButtons = () => {
     const footerBtns = document.querySelectorAll('.loop-modal-footer button');
 
     if (footerBtns) {
+        console.log('footerBtns')
+        console.log(isOpen)
+
         const confirmBtn = footerBtns[0];
-        if (confirmBtn && !isOpen === CANCEL_SUBSCRIPTION) {
+        if (confirmBtn && isOpen !== CANCEL_SUBSCRIPTION) {
+            console.log('confirmBtn')
             confirmBtn.addEventListener('click', ctaClickEvent);
         }
     }
@@ -108,7 +112,8 @@ const getIsOpen = () => {
 }
 
 
-const ctaClickEvent = (e) => {
+const ctaClickEvent = async (e) => {
+    console.log('ctaClickEvent', isOpen, purchaseOption)
     let eventName = isOpen
 
     if (purchaseOption) {
@@ -126,11 +131,12 @@ const ctaClickEvent = (e) => {
         url: window.location.href,
         type: 'button',
         userId: window?.loopProps?.customer.shopifyId,
-        anonymousId: window?.segment?.user()?.anonymousId(),
+        anonymousId: window?.analytics?.user()?.anonymousId(),
     };
 
     if (isOpen) {
-        window.segment.track('CTA Clicked', eventData);
+        await window.analytics.track('CTA Clicked', eventData);
+
     }
 
 }

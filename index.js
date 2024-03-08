@@ -17,7 +17,7 @@ const writeKey = window.location.host.includes('qa2') || !!window.location.port 
 const analytics = window.shopevents
 
 const getSegment = async () => {
-  return await window.segment
+  return await window.analytics
 }
 
 
@@ -166,16 +166,18 @@ const pageViewedEvent = async () => {
 
   const { customerId, subscriptionId } = getCustomerPortalInfo()
 
+  console.log(segment)
+
 
   const pageData = {
     ...(await getCustomerInfo()),
     keywords: [],
     userAgent: navigator.userAgent,
     userAgentData: navigator.userAgentData.brands.map(({ brand }) => brand),
-    user_id: customerId || segment?.user().id(),
-    anonymous_id: window.segment.user().anonymousId(),
+    user_id: customerId || window?.analytics?.user().id(),
+    anonymous_id: window?.analytics?.user().anonymousId()
   };
-  segment.page("Page Viewed", pageData);
+  window?.analytics?.page("Page Viewed", pageData);
 }
 
 
@@ -188,11 +190,11 @@ const cartViewedEvent = async (cart) => {
     const eventData = {
       cart_id: null,
       products: formatThemeProductsData(cart?.items),
-      user_id: customerId || segment.user().id(),
-      anonymous_id: window.segment.user().anonymousId(),
+      user_id: customerId || window?.analytics?.user().id(),
+      anonymous_id: window?.analytics?.user().anonymousId(),
     };
 
-    segment.track("Cart Viewed", eventData);
+    window?.analytics?.track("Cart Viewed", eventData);
   } catch (e) {
     console.log(e);
   }
@@ -213,7 +215,7 @@ const productViewedEvent = async (product) => {
     };
 
     const segment = await getSegment();
-    segment.track("Product Viewed", eventData);
+    window?.analytics?.track("Product Viewed", eventData);
   } catch (e) {
     console.log(e);
   }
@@ -247,12 +249,12 @@ const productAddedEvent = async (data) => {
       variant: product.variant_id,
       wishlist_id: null,
       wishlist_name: null,
-      user_id: customerId || segment.user().id(),
-      anonymous_id: window.segment.user().anonymousId(),
+      user_id: customerId || window?.analytics?.user().id(),
+      anonymous_id: window.window?.analytics?.user().anonymousId(),
     };
 
     segment.identify()
-    segment.track("Product Added to Cart", eventData);
+    window?.analytics?.track("Product Added to Cart", eventData);
   } catch (e) {
     console.log(e);
   }
@@ -280,11 +282,11 @@ const productRemovedEvent = async (product) => {
       sku: product.sku,
       url: window.location.href,
       value: formatProductPrice(product.final_line_price),
-      user_id: customerId || segment.user().id(),
-      anonymous_id: window.segment.user().anonymousId(),
+      user_id: customerId || window?.analytics?.user().id(),
+      anonymous_id: window.window?.analytics?.user().anonymousId(),
     };
 
-    segment.track("Product Removed From Cart", eventData, {
+    window?.analytics?.track("Product Removed From Cart", eventData, {
       context: getContext(),
     });
   } catch (e) {
@@ -293,7 +295,7 @@ const productRemovedEvent = async (product) => {
 };
 
 window.shopevents && analytics.subscribe("checkout_started", (event) => {
-  segment.track(
+  window?.analytics?.track(
     formatEventName(event.name),
     formatCheckoutData(event.data.checkout)
   );
@@ -327,7 +329,7 @@ window.shopevents && analytics.subscribe("checkout_completed", async (event) => 
     source: "becausemarket.com",
   };
 
-  segment.track(formatEventName(event.name), eventData);
+  window?.analytics?.track(formatEventName(event.name), eventData);
   segment.identify()
 });
 
@@ -359,7 +361,7 @@ const productAddedToNextBoxEvent = async (product) => {
     };
 
     const segment = await getSegment();
-    segment.track("Product Added to Next Box", eventData);
+    window?.analytics?.track("Product Added to Next Box", eventData);
   } catch (e) {
     console.log(e);
   }
@@ -389,7 +391,7 @@ const productAddedToNextBoxEvent = async (product) => {
 
 //     segment = await getSegment();
 //     identifyUser(currentCustomer);
-//     segment.track("Account Updated", eventData);
+//     window?.analytics?.track("Account Updated", eventData);
 //   } catch (e) {
 //     console.log(e);
 //   }
@@ -421,7 +423,7 @@ const ctaClickedEvent = async (cta) => {
     }
 
     const segment = await getSegment();
-    segment.track("CTA Clicked", eventData, {
+    window?.analytics?.track("CTA Clicked", eventData, {
       context: getContext(),
     });
   }
