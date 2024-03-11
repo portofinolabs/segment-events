@@ -113,6 +113,7 @@ const getIsOpen = () => {
 
 
 const ctaClickEvent = async (e) => {
+    const segment = await getSegment()
     console.log('ctaClickEvent', isOpen, purchaseOption)
     let eventName = isOpen
 
@@ -135,7 +136,7 @@ const ctaClickEvent = async (e) => {
     };
 
     if (isOpen) {
-        await window.analytics.track('CTA Clicked', eventData);
+        await segment?.track('CTA Clicked', eventData);
 
     }
 
