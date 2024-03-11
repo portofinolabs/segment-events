@@ -6,13 +6,83 @@
  */
 
 
-// const writeKey = window.location.host.includes('qa2') || !!window.location.port ? "bevOsoWqV9duPDtFxcCpLG7DJQbKdbLM" : "41NA4iurxaSbBVPPhBhZ1HVygV7NvUzm";
-// !function () {
-//   var i = "segment", analytics = window[i] = window[i] || []; if (!analytics.initialize) if (analytics.invoked) window.console && console.error && console.error("Segment snippet included twice."); else {
-//     analytics.invoked = !0; analytics.methods = ["trackSubmit", "trackClick", "trackLink", "trackForm", "pageview", "identify", "reset", "group", "track", "ready", "alias", "debug", "page", "screen", "once", "off", "on", "addSourceMiddleware", "addIntegrationMiddleware", "setAnonymousId", "addDestinationMiddleware", "register"]; analytics.factory = function (e) { return function () { if (window[i].initialized) return window[i][e].apply(window[i], arguments); var n = Array.prototype.slice.call(arguments); if (["track", "screen", "alias", "group", "page", "identify"].indexOf(e) > -1) { var c = document.querySelector("link[rel='canonical']"); n.push({ __t: "bpc", c: c && c.getAttribute("href") || void 0, p: location.pathname, u: location.href, s: location.search, t: document.title, r: document.referrer }) } n.unshift(e); analytics.push(n); return analytics } }; for (var n = 0; n < analytics.methods.length; n++) { var key = analytics.methods[n]; analytics[key] = analytics.factory(key) } analytics.load = function (key, n) { var t = document.createElement("script"); t.type = "text/javascript"; t.async = !0; t.setAttribute("data-global-segment-analytics-key", i); t.src = "https://cdn.segment.com/analytics.js/v1/" + key + "/analytics.min.js"; var r = document.getElementsByTagName("script")[0]; r.parentNode.insertBefore(t, r); analytics._loadOptions = n }; analytics._writeKey = "bevOsoWqV9duPDtFxcCpLG7DJQbKdbLM";; analytics.SNIPPET_VERSION = "5.2.0";
-//     analytics.load('bevOsoWqV9duPDtFxcCpLG7DJQbKdbLM');
-//   }
-// }();
+
+const writeKey =
+  window.location.host.includes('qa2') || !!window.location.port
+    ? '{{ settings.segment_analytics_write_key_dev }}'
+    : '{{ settings.segment_analytics_write_key_prod }}';
+
+!(function () {
+  var i = 'segment',
+    analytics = (window[i] = window[i] || []);
+  if (!analytics.initialize)
+    if (analytics.invoked) window.console && console.error && console.error('Segment snippet included twice.');
+    else {
+      analytics.invoked = !0;
+      analytics.methods = [
+        'trackSubmit',
+        'trackClick',
+        'trackLink',
+        'trackForm',
+        'pageview',
+        'identify',
+        'reset',
+        'group',
+        'track',
+        'ready',
+        'alias',
+        'debug',
+        'page',
+        'screen',
+        'once',
+        'off',
+        'on',
+        'addSourceMiddleware',
+        'addIntegrationMiddleware',
+        'setAnonymousId',
+        'addDestinationMiddleware',
+        'register',
+      ];
+      analytics.factory = function (e) {
+        return function () {
+          if (window[i].initialized) return window[i][e].apply(window[i], arguments);
+          var n = Array.prototype.slice.call(arguments);
+          if (['track', 'screen', 'alias', 'group', 'page', 'identify'].indexOf(e) > -1) {
+            var c = document.querySelector("link[rel='canonical']");
+            n.push({
+              __t: 'bpc',
+              c: (c && c.getAttribute('href')) || void 0,
+              p: location.pathname,
+              u: location.href,
+              s: location.search,
+              t: document.title,
+              r: document.referrer,
+            });
+          }
+          n.unshift(e);
+          analytics.push(n);
+          return analytics;
+        };
+      };
+      for (var n = 0; n < analytics.methods.length; n++) {
+        var key = analytics.methods[n];
+        analytics[key] = analytics.factory(key);
+      }
+      analytics.load = function (key, n) {
+        var t = document.createElement('script');
+        t.type = 'text/javascript';
+        t.async = !0;
+        t.setAttribute('data-global-segment-analytics-key', i);
+        t.src = 'https://cdn.segment.com/analytics.js/v1/' + key + '/analytics.min.js';
+        var r = document.getElementsByTagName('script')[0];
+        r.parentNode.insertBefore(t, r);
+        analytics._loadOptions = n;
+      };
+      analytics._writeKey = writeKey;
+      analytics.SNIPPET_VERSION = '5.2.0';
+      analytics.load(writeKey);
+    }
+})();
 
 const analytics = window.shopevents
 console.log('analytics', window.analytics)
@@ -178,10 +248,10 @@ const pageViewedEvent = async () => {
     keywords: [],
     userAgent: navigator.userAgent,
     userAgentData: navigator.userAgentData.brands.map(({ brand }) => brand),
-    user_id: customerId || window?.analytics?.user().id(),
-    anonymous_id: window?.analytics?.user().anonymousId()
+    user_id: customerId || window?.segment?.user().id(),
+    anonymous_id: window?.segment?.user().anonymousId()
   };
-  window?.analytics?.page("Page Viewed", pageData);
+  window?.segment?.page("Page Viewed", pageData);
 }
 
 
@@ -194,11 +264,11 @@ const cartViewedEvent = async (cart) => {
     const eventData = {
       cart_id: null,
       products: formatThemeProductsData(cart?.items),
-      user_id: customerId || window?.analytics?.user().id(),
-      anonymous_id: window?.analytics?.user().anonymousId(),
+      user_id: customerId || window?.segment?.user().id(),
+      anonymous_id: window?.segment?.user().anonymousId(),
     };
 
-    window?.analytics?.track("Cart Viewed", eventData);
+    window?.segment?.track("Cart Viewed", eventData);
   } catch (e) {
     console.log(e);
   }
@@ -219,7 +289,7 @@ const productViewedEvent = async (product) => {
     };
 
     const segment = await getSegment();
-    window?.analytics?.track("Product Viewed", eventData);
+    window?.segment?.track("Product Viewed", eventData);
   } catch (e) {
     console.log(e);
   }
@@ -253,12 +323,12 @@ const productAddedEvent = async (data) => {
       variant: product.variant_id,
       wishlist_id: null,
       wishlist_name: null,
-      user_id: customerId || window?.analytics?.user().id(),
-      anonymous_id: window?.analytics?.user().anonymousId(),
+      user_id: customerId || window?.segment?.user().id(),
+      anonymous_id: window?.segment?.user().anonymousId(),
     };
 
     segment.identify()
-    window?.analytics?.track("Product Added to Cart", eventData);
+    window?.segment?.track("Product Added to Cart", eventData);
   } catch (e) {
     console.log(e);
   }
@@ -286,11 +356,11 @@ const productRemovedEvent = async (product) => {
       sku: product.sku,
       url: window.location.href,
       value: formatProductPrice(product.final_line_price),
-      user_id: customerId || window?.analytics?.user().id(),
-      anonymous_id: window?.analytics?.user().anonymousId(),
+      user_id: customerId || window?.segment?.user().id(),
+      anonymous_id: window?.segment?.user().anonymousId(),
     };
 
-    window?.analytics?.track("Product Removed From Cart", eventData, {
+    window?.segment?.track("Product Removed From Cart", eventData, {
       context: getContext(),
     });
   } catch (e) {
@@ -299,7 +369,7 @@ const productRemovedEvent = async (product) => {
 };
 
 window.shopevents && analytics.subscribe("checkout_started", (event) => {
-  window?.analytics?.track(
+  window?.segment?.track(
     formatEventName(event.name),
     formatCheckoutData(event.data.checkout)
   );
@@ -333,7 +403,7 @@ window.shopevents && analytics.subscribe("checkout_completed", async (event) => 
     source: "becausemarket.com",
   };
 
-  window?.analytics?.track(formatEventName(event.name), eventData);
+  window?.segment?.track(formatEventName(event.name), eventData);
   segment.identify()
 });
 
@@ -365,7 +435,7 @@ const productAddedToNextBoxEvent = async (product) => {
     };
 
     const segment = await getSegment();
-    window?.analytics?.track("Product Added to Next Box", eventData);
+    window?.segment?.track("Product Added to Next Box", eventData);
   } catch (e) {
     console.log(e);
   }
@@ -395,7 +465,7 @@ const productAddedToNextBoxEvent = async (product) => {
 
 //     segment = await getSegment();
 //     identifyUser(currentCustomer);
-//     window?.analytics?.track("Account Updated", eventData);
+//     window?.segment?.track("Account Updated", eventData);
 //   } catch (e) {
 //     console.log(e);
 //   }
@@ -427,7 +497,7 @@ const ctaClickedEvent = async (cta) => {
     }
 
     const segment = await getSegment();
-    window?.analytics?.track("CTA Clicked", eventData, {
+    window?.segment?.track("CTA Clicked", eventData, {
       context: getContext(),
     });
   }
