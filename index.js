@@ -6,11 +6,14 @@
  */
 
 
-const shopevents = window.shopevents
+
 
 const getSegment = async () => {
   return await window?.segment
 }
+
+const shopevents = window.shopevents
+console.log(shopevents)
 
 
 const formatEventName = (name) => {
@@ -283,7 +286,9 @@ const productRemovedEvent = async (product) => {
   }
 };
 
-window.shopevents && analytics.subscribe("checkout_started", (event) => {
+window?.shopevents.subscribe("checkout_started", async (event) => {
+  const segment = await getSegment();
+
   segment?.track(
     formatEventName(event.name),
     formatCheckoutData(event.data.checkout)
@@ -291,8 +296,9 @@ window.shopevents && analytics.subscribe("checkout_started", (event) => {
 });
 
 
-window.shopevents && analytics.subscribe("checkout_completed", async (event) => {
+window?.shopevents.subscribe("checkout_completed", async (event) => {
   const segment = await getSegment()
+
   const eventData = {
     affiliation: "Website",
     checkout_id: event.data.checkout.token,
